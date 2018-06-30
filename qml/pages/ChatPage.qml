@@ -1,30 +1,38 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-//import Qt.WebSockets 1.0
+import QtWebSockets 1.0
+
+
 
 Page {
-    id: page
+    property WebSocket chatWebsocket
 
+    id: page
     // The effective value will be restricted by ApplicationWindow.allowedOrientations
     allowedOrientations: Orientation.All
     Column {
         width: parent.width
         height: parent.height
-        anchors.fill: parent
         SilicaListView {
             id: listView
-            model: 2
+            model: ListModel {
+                ListElement {
+                    authorName: qsTr("authooor")
+                    messageText: qsTr("Some message")
+                }
+            }
+
             width: parent.width
             height: 0.7 * parent.height
             anchors.top: parent
             delegate: ListItem {
                 Column {
                     Label {
-                        text: qsTr("author")
+                        text: authorName
                         color: Theme.highlightColor
                     }
                     Label {
-                        text: qsTr("message")
+                        text: messageText
                     }
                 }
             }
@@ -46,6 +54,15 @@ Page {
             height: 0.2 * parent.height
             width: 0.2 * parent.width
             icon.source: "image://theme/icon-m-message"
+            onClicked: {
+                var textData = messageTextArea.text;
+                messageTextArea.text = "";
+                var data = {
+                    "type": "text",
+                    "message": textData
+                }
+                chatWebsocket.sendTextMessage(JSON.stringify(data));
+            }
         }
     }
 }
